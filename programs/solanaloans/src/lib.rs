@@ -15,10 +15,11 @@ pub mod solanaloans {
   // This function creates a loan.
   pub fn create_loan(ctx: Context<CreateLoan>) -> ProgramResult {
     let base_account = &mut ctx.accounts.base_account;
-    // if base_account.total_sol < 5 {
-    //   return Err(ProgramError::InsufficientFunds);
-    // }
-    msg!(base_account);
+    let lamports = &base_account.to_account_info().lamports();
+    let lamports_per_sol = 1000000000;
+    if *lamports < 7 * lamports_per_sol {
+      return Err(ProgramError::InsufficientFunds);
+    }
     let user = &mut ctx.accounts.user;
 
     let loan_struct = LoanStruct {
@@ -64,7 +65,7 @@ pub struct Initialize<'info> {
   pub system_program: Program <'info, System>,
 }
 
-// Add the signer who calls the AddGif method to the struct so that we can save it
+// Add the signer who calls the CreateLoan method
 #[derive(Accounts)]
 pub struct CreateLoan<'info> {
   #[account(mut)]
