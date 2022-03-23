@@ -12,8 +12,9 @@ pub mod solanaloans {
 
   // This function creates a loan.
   pub fn create_loan(ctx: Context<CreateLoan>) -> ProgramResult {
-    let minimum_sol_balance = 0;
+    let minimum_sol_balance = 2;
     let lamports_per_sol = 1000000000;
+    let loan_amount = 2 * lamports_per_sol;
     let base_account = &mut ctx.accounts.base_account;
     let lamports = &base_account.to_account_info().lamports();
     if *lamports < minimum_sol_balance * lamports_per_sol {
@@ -50,6 +51,8 @@ pub mod solanaloans {
       user_struct.loans.push(loan_struct);
       msg!("Enter user exists.");
     }
+    **base_account.to_account_info().try_borrow_mut_lamports()? -= loan_amount;
+    **user.to_account_info().try_borrow_mut_lamports()? += loan_amount;
     Ok(())
   }
 }
@@ -70,6 +73,7 @@ pub struct CreateLoan<'info> {
   pub base_account: Account<'info, BaseAccount>,
   #[account(mut)]
   pub user: Signer<'info>,
+  pub system_program: Program <'info, System>,
 }
 
 // User data model.

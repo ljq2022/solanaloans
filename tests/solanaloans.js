@@ -10,11 +10,24 @@ describe("solanaloans", () => {
   it("Is able to initialize and create two loans for the same user.", async () => {
     console.log("🚀 Starting test...");
 
+    const LAMPORTS_PER_SOL = 1000000000;
+    const SOL_AMOUNT = 7;
+    const NUM_LAMPORTS = SOL_AMOUNT * LAMPORTS_PER_SOL;
+
     const provider = anchor.Provider.env();
     anchor.setProvider(provider);
 
     const program = anchor.workspace.Solanaloans;
     const baseAccount = anchor.web3.Keypair.generate();
+
+    await provider.connection.confirmTransaction(
+      await provider.connection.requestAirdrop(
+        baseAccount.publicKey,
+        NUM_LAMPORTS
+      ),
+      "confirmed"
+    );
+
     await program.rpc.initialize({
       accounts: {
         baseAccount: baseAccount.publicKey,
@@ -27,13 +40,18 @@ describe("solanaloans", () => {
       accounts: {
         baseAccount: baseAccount.publicKey,
         user: provider.wallet.publicKey,
+        systemProgram: SystemProgram.programId,
       },
     });
     await program.rpc.createLoan({
       accounts: {
         baseAccount: baseAccount.publicKey,
         user: provider.wallet.publicKey,
+        systemProgram: SystemProgram.programId,
       },
     });
+    // const balance = await program.account.baseAccount.getAccountInfo(donator.publicKey);
+    // console.log(balance);
+    // expect(balance.lamports.toString()).equal("100");
   });
 });
