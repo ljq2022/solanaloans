@@ -6,18 +6,17 @@ declare_id!("Em8pj36RxaefZ2cm9ZfcnyXedyemqbDVgTbGGcQMae5A");
 #[program]
 pub mod solanaloans {
   use super::*;
-  pub fn initialize(ctx: Context<Initialize>) -> ProgramResult {
-    let base_account = &mut ctx.accounts.base_account;
-    base_account.total_sol = 0;
+  pub fn initialize(_ctx: Context<Initialize>) -> ProgramResult {
     Ok(())
   }
 
   // This function creates a loan.
   pub fn create_loan(ctx: Context<CreateLoan>) -> ProgramResult {
+    let minimum_sol_balance = 0;
+    let lamports_per_sol = 1000000000;
     let base_account = &mut ctx.accounts.base_account;
     let lamports = &base_account.to_account_info().lamports();
-    let lamports_per_sol = 1000000000;
-    if *lamports < 7 * lamports_per_sol {
+    if *lamports < minimum_sol_balance * lamports_per_sol {
       return Err(ProgramError::InsufficientFunds);
     }
     let user = &mut ctx.accounts.user;
@@ -51,7 +50,6 @@ pub mod solanaloans {
       user_struct.loans.push(loan_struct);
       msg!("Enter user exists.");
     }
-    base_account.total_sol -= 5;
     Ok(())
   }
 }
@@ -83,7 +81,6 @@ pub struct UserStruct {
 
 #[account]
 pub struct BaseAccount {
-  pub total_sol: u64,
   pub users: Vec<UserStruct>
 }
 
