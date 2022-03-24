@@ -10,7 +10,7 @@ describe("solanaloans", () => {
   const provider = anchor.Provider.env();
   anchor.setProvider(provider);
 
-  it("Is able to initialize and create two loans for the same user.", async () => {
+  it("Is able to initialize and create a loan for a user.", async () => {
     console.log("🚀 Starting test...");
 
     const LAMPORTS_PER_SOL = 1000000000;
@@ -43,16 +43,9 @@ describe("solanaloans", () => {
         systemProgram: SystemProgram.programId,
       },
     });
-    await program.rpc.createLoan({
-      accounts: {
-        baseAccount: baseAccount.publicKey,
-        user: provider.wallet.publicKey,
-        systemProgram: SystemProgram.programId,
-      },
-    });
     const balance = await program.account.baseAccount.getAccountInfo(
       baseAccount.publicKey
     );
-    expect(balance.lamports.toString()).equal("6000000000");
+    expect(balance.lamports.toString()).equal("8000000000");
   });
 });
