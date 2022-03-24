@@ -53,6 +53,10 @@ pub mod solanaloans {
       msg!("Enter user does not exist.");
     } else {
       let user_struct = &mut base_account.users[*existing_user_idx];
+      // The next conditional checks if a user has paid back their most recent loan. If they haven't, return an error.
+      // We initialize a default loan structure because the `last()` function in a vec returns an Optional type
+      // because the result of `last()` could be None if the array is empty.
+      // For type safety, `unwrap_or` ensures that there will always be a loan object in the conditional.
       let default_loan_struct = LoanStruct {
         amount: 0,
         is_paid: true
