@@ -2,7 +2,7 @@
 
 ## Solana Installation
 
-For Windows installation, follow these instructions: https://github.com/buildspace/buildspace-projects/tree/main/Solana_And_Web3/en/Section_2/Resources/windows_setup.md
+For Windows installation, follow these instructions: https://github.com/buildspace/buildspace-projects/tree/main/Solana_And_Web3/en/Section_2/Resources/windows_setup.md <br>
 For Mac Installation, follow these instructions: https://github.com/buildspace/buildspace-projects/tree/main/Solana_And_Web3/en/Section_2/Resources/m1_setup.md
 
 ## Rust Installation
@@ -37,7 +37,7 @@ solana-test-validator
 
 ## Anchor Installation
 
-Assuming you already have Node and NPM, install Mocha with `npm install -g mocha`
+Assuming you already have Node and NPM, install all dependencies with `npm i`
 From here, run:
 
 ```
