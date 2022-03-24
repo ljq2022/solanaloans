@@ -11,8 +11,6 @@ pub mod solanaloans {
   }
   
   pub fn pay_loan(ctx: Context<PayLoan>) -> ProgramResult {
-    let lamports_per_sol: u64 = 1000000000;
-    let loan_repayment_amount: u64 = 3 * lamports_per_sol;
     let base_account = &mut ctx.accounts.base_account;
     let user = &mut ctx.accounts.user;
 
@@ -35,7 +33,8 @@ pub mod solanaloans {
     // For type safety, `unwrap_or` ensures that there will always be a loan object in the conditional.
     let default_loan_struct = LoanStruct {
       amount: 0,
-      is_paid: true
+      is_paid: true,
+      repayment_amount: 0
     };
     if user_struct.loans.last().unwrap_or(&default_loan_struct).is_paid {
       return Err(ProgramError::InvalidAccountData);
@@ -43,23 +42,23 @@ pub mod solanaloans {
     let most_recent_loan = user_struct.loans.pop().unwrap_or(default_loan_struct);
     let updated_loan = LoanStruct {
       amount: most_recent_loan.amount,
-      is_paid: true
+      is_paid: true,
+      repayment_amount: most_recent_loan.repayment_amount
     };
     user_struct.loans.push(updated_loan);
     // Make the transaction.
     let ix = anchor_lang::solana_program::system_instruction::transfer(
       &user.key(),
       &base_account.key(),
-      loan_repayment_amount,
+      most_recent_loan.repayment_amount,
     );
-    anchor_lang::solana_program::program::invoke(
+    return anchor_lang::solana_program::program::invoke(
         &ix,
         &[
             user.to_account_info(),
             base_account.to_account_info(),
         ],
     );
-    Ok(())
   }
 
   // This function creates a loan.
@@ -67,6 +66,7 @@ pub mod solanaloans {
     let minimum_sol_balance = 2;
     let lamports_per_sol: u64 = 1000000000;
     let loan_amount: u64 = 2 * lamports_per_sol;
+    let loan_repayment_amount: u64 = 3 * lamports_per_sol;
     let base_account = &mut ctx.accounts.base_account;
     let lamports = &base_account.to_account_info().lamports();
 
@@ -78,7 +78,8 @@ pub mod solanaloans {
 
     let loan_struct = LoanStruct {
         amount: loan_amount,
-        is_paid: false
+        is_paid: false,
+        repayment_amount: loan_repayment_amount
     };
 
     // Iterate through the users that have already taken loans to see if the current user has already taken a loan before.
@@ -109,7 +110,8 @@ pub mod solanaloans {
       // For why we use the `unwrap_or` pattern, see the explanation above in `pay_loan()`
       let default_loan_struct = LoanStruct {
         amount: 0,
-        is_paid: true
+        is_paid: true,
+        repayment_amount: 0
       };
       if user_struct.loans.last().unwrap_or(&default_loan_struct).is_paid == false {
         return Err(ProgramError::AccountBorrowFailed);
@@ -167,5 +169,6 @@ pub struct BaseAccount {
 #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct LoanStruct {
   pub amount: u64,
-  pub is_paid: bool
+  pub is_paid: bool,
+  pub repayment_amount: u64
 }
