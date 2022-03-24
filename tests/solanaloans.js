@@ -40,9 +40,9 @@ describe("solanaloans", () => {
         systemProgram: SystemProgram.programId,
       },
     });
-    const balance = await program.account.baseAccount.getAccountInfo(
+    const programBalance = await program.account.baseAccount.getAccountInfo(
       baseAccount.publicKey
     );
-    expect(balance.lamports.toString()).equal("8000000000");
+    expect(programBalance.lamports.toString()).equal("8000000000");
   });
 });
