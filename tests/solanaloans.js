@@ -4,9 +4,6 @@ const expect = chai.expect;
 const { SystemProgram } = anchor.web3;
 
 describe("solanaloans", () => {
-  // Configure the client to use the local cluster.
-  // export RUST_LOG=solana_runtime::system_instruction_processor=trace,solana_runtime::message_processor=info,solana_bpf_loader=debug,solana_rbpf=debug
-  // solana logs
   const provider = anchor.Provider.env();
   anchor.setProvider(provider);
 
