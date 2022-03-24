@@ -17,6 +17,8 @@ pub mod solanaloans {
     let loan_amount = 2 * lamports_per_sol;
     let base_account = &mut ctx.accounts.base_account;
     let lamports = &base_account.to_account_info().lamports();
+
+    // Return an error if the account does not have a sufficient balance to make a loan.
     if *lamports < minimum_sol_balance * lamports_per_sol {
       return Err(ProgramError::InsufficientFunds);
     }
@@ -27,6 +29,7 @@ pub mod solanaloans {
         is_paid: false
     };
 
+    // Iterate through the users that have already taken loans to see if the current user has already taken a loan before.
     let user_exists = &mut false;
     let existing_user_idx = &mut 0;
     for (i, iterated_user) in base_account.users.iter_mut().enumerate() {
@@ -36,6 +39,8 @@ pub mod solanaloans {
           break;
         }
     }
+    // If the current user already has taken a loan, modify their existing loans array.
+    // Otherwise, create a new user structure with a new loans array and add the user structure to the account users.
     if *user_exists == false {
       let mut loans = Vec::new();
       loans.push(loan_struct);
@@ -48,9 +53,17 @@ pub mod solanaloans {
       msg!("Enter user does not exist.");
     } else {
       let user_struct = &mut base_account.users[*existing_user_idx];
+      let default_loan_struct = LoanStruct {
+        amount: 0,
+        is_paid: true
+      };
+      if user_struct.loans.last().unwrap_or(&default_loan_struct).is_paid == false {
+        return Err(ProgramError::AccountBorrowFailed);
+      }
       user_struct.loans.push(loan_struct);
       msg!("Enter user exists.");
     }
+    // Make the transaction.
     **base_account.to_account_info().try_borrow_mut_lamports()? -= loan_amount;
     **user.to_account_info().try_borrow_mut_lamports()? += loan_amount;
     Ok(())
