@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::entrypoint::ProgramResult;
+use anchor_lang::solana_program::sysvar::clock::Clock;
 
 declare_id!("Em8pj36RxaefZ2cm9ZfcnyXedyemqbDVgTbGGcQMae5A");
 
@@ -34,7 +35,8 @@ pub mod solanaloans {
     let default_loan_struct = LoanStruct {
       amount: 0,
       is_paid: true,
-      repayment_amount: 0
+      repayment_amount: 0,
+      creation_time: Clock::get().unwrap().unix_timestamp
     };
     if user_struct.loans.last().unwrap_or(&default_loan_struct).is_paid {
       return Err(ProgramError::InvalidAccountData);
@@ -43,7 +45,8 @@ pub mod solanaloans {
     let updated_loan = LoanStruct {
       amount: most_recent_loan.amount,
       is_paid: true,
-      repayment_amount: most_recent_loan.repayment_amount
+      repayment_amount: most_recent_loan.repayment_amount,
+      creation_time: most_recent_loan.creation_time
     };
     user_struct.loans.push(updated_loan);
     // Make the transaction.
@@ -69,6 +72,7 @@ pub mod solanaloans {
     let loan_repayment_amount: u64 = 3 * lamports_per_sol;
     let base_account = &mut ctx.accounts.base_account;
     let lamports = &base_account.to_account_info().lamports();
+    let current_time = Clock::get().unwrap().unix_timestamp;
 
     // Return an error if the account does not have a sufficient balance to make a loan.
     if *lamports < minimum_sol_balance * lamports_per_sol {
@@ -79,7 +83,8 @@ pub mod solanaloans {
     let loan_struct = LoanStruct {
         amount: loan_amount,
         is_paid: false,
-        repayment_amount: loan_repayment_amount
+        repayment_amount: loan_repayment_amount,
+        creation_time: current_time
     };
 
     // Iterate through the users that have already taken loans to see if the current user has already taken a loan before.
@@ -111,7 +116,8 @@ pub mod solanaloans {
       let default_loan_struct = LoanStruct {
         amount: 0,
         is_paid: true,
-        repayment_amount: 0
+        repayment_amount: 0,
+        creation_time: current_time
       };
       if user_struct.loans.last().unwrap_or(&default_loan_struct).is_paid == false {
         return Err(ProgramError::AccountBorrowFailed);
@@ -170,5 +176,6 @@ pub struct BaseAccount {
 pub struct LoanStruct {
   pub amount: u64,
   pub is_paid: bool,
-  pub repayment_amount: u64
+  pub repayment_amount: u64,
+  pub creation_time: i64
 }
