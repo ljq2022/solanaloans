@@ -22,6 +22,7 @@ pub mod solanaloans {
     Ok(())
   }
   
+  // Allows user to pay back the most recent loan they have taken out.
   pub fn pay_loan(ctx: Context<PayLoan>) -> ProgramResult {
     let base_account = &mut ctx.accounts.base_account;
     let user = &mut ctx.accounts.user;
@@ -41,6 +42,9 @@ pub mod solanaloans {
       return Err(ProgramError::UninitializedAccount);
     }
     let user_struct = &mut base_account.users[*existing_user_idx];
+    if user_struct.loans.last().is_none() {
+      return Err(ProgramError::InvalidAccountData);
+    }
     // We use a default loan structure because the `last()` function in a vec returns an Optional type
     // because the result of `last()` could be None if the array is empty.
     // For type safety, `unwrap_or` ensures that there will always be a loan object in the conditional.
@@ -70,7 +74,7 @@ pub mod solanaloans {
     );
   }
 
-  // This function creates a loan.
+  // Creates a loan.
   pub fn create_loan(ctx: Context<CreateLoan>) -> ProgramResult {
     let base_account = &mut ctx.accounts.base_account;
     let minimum_balance = base_account.minimum_balance;
