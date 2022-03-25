@@ -13,12 +13,19 @@ pub mod solanaloans {
     base_account.minimum_balance = 2 * lamports_per_sol;
     base_account.loan_amount = 2 * lamports_per_sol;
     base_account.loan_repayment_amount = 3 * lamports_per_sol;
+    base_account.default_loan_struct = LoanStruct {
+      amount: 0,
+      is_paid: true,
+      repayment_amount: 0,
+      creation_time: Clock::get().unwrap().unix_timestamp
+    };
     Ok(())
   }
   
   pub fn pay_loan(ctx: Context<PayLoan>) -> ProgramResult {
     let base_account = &mut ctx.accounts.base_account;
     let user = &mut ctx.accounts.user;
+    let default_loan_struct = base_account.default_loan_struct.clone();
 
     // Iterate through the users that have already taken loans to see if the current user has taken a loan.
     let user_exists = &mut false;
@@ -34,15 +41,9 @@ pub mod solanaloans {
       return Err(ProgramError::UninitializedAccount);
     }
     let user_struct = &mut base_account.users[*existing_user_idx];
-    // We initialize a default loan structure because the `last()` function in a vec returns an Optional type
+    // We use a default loan structure because the `last()` function in a vec returns an Optional type
     // because the result of `last()` could be None if the array is empty.
     // For type safety, `unwrap_or` ensures that there will always be a loan object in the conditional.
-    let default_loan_struct = LoanStruct {
-      amount: 0,
-      is_paid: true,
-      repayment_amount: 0,
-      creation_time: Clock::get().unwrap().unix_timestamp
-    };
     if user_struct.loans.last().unwrap_or(&default_loan_struct).is_paid {
       return Err(ProgramError::InvalidAccountData);
     }
@@ -77,6 +78,7 @@ pub mod solanaloans {
     let loan_repayment_amount: u64 = base_account.loan_repayment_amount;
     let lamports = &base_account.to_account_info().lamports();
     let current_time = Clock::get().unwrap().unix_timestamp;
+    let default_loan_struct = &base_account.default_loan_struct.clone();
 
     // Return an error if the account does not have a sufficient balance to make a loan.
     if *lamports < minimum_balance {
@@ -117,12 +119,6 @@ pub mod solanaloans {
       let user_struct = &mut base_account.users[*existing_user_idx];
       // The next conditional checks if a user has paid back their most recent loan. If they haven't, return an error.
       // For why we use the `unwrap_or` pattern, see the explanation above in `pay_loan()`
-      let default_loan_struct = LoanStruct {
-        amount: 0,
-        is_paid: true,
-        repayment_amount: 0,
-        creation_time: current_time
-      };
       if user_struct.loans.last().unwrap_or(&default_loan_struct).is_paid == false {
         return Err(ProgramError::AccountBorrowFailed);
       }
@@ -175,7 +171,8 @@ pub struct BaseAccount {
   pub users: Vec<UserStruct>,
   pub minimum_balance: u64,
   pub loan_amount: u64,
-  pub loan_repayment_amount: u64
+  pub loan_repayment_amount: u64,
+  pub default_loan_struct: LoanStruct
 }
 
 // Loan data model.
