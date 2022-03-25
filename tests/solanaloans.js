@@ -7,7 +7,7 @@ describe("solanaloans", () => {
   const provider = anchor.Provider.env();
   anchor.setProvider(provider);
 
-  it("Is able to initialize and create a loan for a user.", async () => {
+  it("Initializes and creates a loan for a user.", async () => {
     const LAMPORTS_PER_SOL = 1000000000;
     const SOL_AMOUNT = 10;
     const NUM_LAMPORTS = SOL_AMOUNT * LAMPORTS_PER_SOL;
@@ -43,7 +43,7 @@ describe("solanaloans", () => {
     );
     expect(programBalance.lamports.toString()).equal("8000000000");
   });
-  it("Is able to initialize, create a loan for a user, and have them pay it back.", async () => {
+  it("Initializes, creates a loan for a user, and enables them to pay the loan back.", async () => {
     const LAMPORTS_PER_SOL = 1000000000;
     const SOL_AMOUNT = 10;
     const NUM_LAMPORTS = SOL_AMOUNT * LAMPORTS_PER_SOL;
