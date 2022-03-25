@@ -7,7 +7,12 @@ declare_id!("Em8pj36RxaefZ2cm9ZfcnyXedyemqbDVgTbGGcQMae5A");
 #[program]
 pub mod solanaloans {
   use super::*;
-  pub fn initialize(_ctx: Context<Initialize>) -> ProgramResult {
+  pub fn initialize(ctx: Context<Initialize>) -> ProgramResult {
+    let base_account = &mut ctx.accounts.base_account;
+    let lamports_per_sol = 1000000000;
+    base_account.minimum_balance = 2 * lamports_per_sol;
+    base_account.loan_amount = 2 * lamports_per_sol;
+    base_account.loan_repayment_amount = 3 * lamports_per_sol;
     Ok(())
   }
   
@@ -66,16 +71,15 @@ pub mod solanaloans {
 
   // This function creates a loan.
   pub fn create_loan(ctx: Context<CreateLoan>) -> ProgramResult {
-    let minimum_sol_balance = 2;
-    let lamports_per_sol: u64 = 1000000000;
-    let loan_amount: u64 = 2 * lamports_per_sol;
-    let loan_repayment_amount: u64 = 3 * lamports_per_sol;
     let base_account = &mut ctx.accounts.base_account;
+    let minimum_balance = base_account.minimum_balance;
+    let loan_amount: u64 = base_account.loan_amount;
+    let loan_repayment_amount: u64 = base_account.loan_repayment_amount;
     let lamports = &base_account.to_account_info().lamports();
     let current_time = Clock::get().unwrap().unix_timestamp;
 
     // Return an error if the account does not have a sufficient balance to make a loan.
-    if *lamports < minimum_sol_balance * lamports_per_sol {
+    if *lamports < minimum_balance {
       return Err(ProgramError::InsufficientFunds);
     }
     let user = &mut ctx.accounts.user;
@@ -168,7 +172,10 @@ pub struct UserStruct {
 
 #[account]
 pub struct BaseAccount {
-  pub users: Vec<UserStruct>
+  pub users: Vec<UserStruct>,
+  pub minimum_balance: u64,
+  pub loan_amount: u64,
+  pub loan_repayment_amount: u64
 }
 
 // Loan data model.
