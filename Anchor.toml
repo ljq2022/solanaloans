@@ -1,13 +1,13 @@
 [features]
 seeds = false
-[programs.localnet]
-solanaloans = "Em8pj36RxaefZ2cm9ZfcnyXedyemqbDVgTbGGcQMae5A"
+[programs.devnet]
+solanaloans = "BBZ2HBi6WbaFtGeXwewBbMe3x4foTcrQNfc4jJUPLt8a"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/Users/lukeqin/.config/solana/id.json"
 
 [scripts]

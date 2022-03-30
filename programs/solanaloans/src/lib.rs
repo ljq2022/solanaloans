@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::entrypoint::ProgramResult;
 use anchor_lang::solana_program::sysvar::clock::Clock;
 
-declare_id!("Em8pj36RxaefZ2cm9ZfcnyXedyemqbDVgTbGGcQMae5A");
+declare_id!("BBZ2HBi6WbaFtGeXwewBbMe3x4foTcrQNfc4jJUPLt8a");
 
 #[program]
 pub mod solanaloans {
@@ -10,9 +10,9 @@ pub mod solanaloans {
   pub fn initialize(ctx: Context<Initialize>) -> ProgramResult {
     let base_account = &mut ctx.accounts.base_account;
     let lamports_per_sol = 1000000000;
-    base_account.minimum_balance = 2 * lamports_per_sol;
-    base_account.loan_amount = 2 * lamports_per_sol;
-    base_account.loan_repayment_amount = 3 * lamports_per_sol;
+    base_account.loan_amount = lamports_per_sol / 2;
+    base_account.minimum_balance = base_account.loan_amount;
+    base_account.loan_repayment_amount = 2 * lamports_per_sol;
     base_account.default_loan_struct = LoanStruct {
       amount: 0,
       is_paid: true,
