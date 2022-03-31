@@ -1,14 +1,15 @@
 [features]
 seeds = false
-[programs.devnet]
-solanaloans = "BBZ2HBi6WbaFtGeXwewBbMe3x4foTcrQNfc4jJUPLt8a"
+[programs.localnet]
+# solanaloans = "BBZ2HBi6WbaFtGeXwewBbMe3x4foTcrQNfc4jJUPLt8a"
+solanaloans = "AVpdKDSQo8PzSV5zDspNVGCJcwBwm21zzTGDm8vKiw8z"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "devnet"
-wallet = "/Users/lukeqin/.config/solana/id.json"
+cluster = "localnet"
+wallet = "/Users/vaibhav.mallya/.config/solana/id.json"
 
 [scripts]
 test = "yarn run mocha -t 1000000 tests/"
