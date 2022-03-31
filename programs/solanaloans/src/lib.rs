@@ -2,7 +2,8 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::entrypoint::ProgramResult;
 use anchor_lang::solana_program::sysvar::clock::Clock;
 
-declare_id!("BBZ2HBi6WbaFtGeXwewBbMe3x4foTcrQNfc4jJUPLt8a");
+// declare_id!("8RPE7B3HN9Uz8VusDzwAVQdcz87RoGxxmKGUCYN1KgUE");
+declare_id!("AVpdKDSQo8PzSV5zDspNVGCJcwBwm21zzTGDm8vKiw8z");
 
 #[program]
 pub mod solanaloans {
